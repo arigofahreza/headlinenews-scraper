@@ -3,26 +3,19 @@ from datetime import datetime, timezone
 from typing import List, Dict
 
 from parsers.cnn_parser import parse_cnn
+from parsers.detiknews_parser import parse_detiknews
 from parsers.kompas_parser import parse_kompas
-from utils.helpers import save_json
+from parsers.liputan6_parser import parse_liputan6
+from parsers.tempo_parser import parse_tempo
+from utils.helpers import save_json, fetch
 
 SITES = [
     # {"name": "kompas", "url": "https://www.kompas.com/", "parser": parse_kompas},
-    # {"name": "detik", "url": "https://www.detik.com/", "parser": parse_detik},
-    # {"name": "tempo", "url": "https://www.tempo.co/", "parser": parse_tempo},
-    {"name": "cnnindonesia", "url": "https://www.cnnindonesia.com/", "parser": parse_cnn},
+    # {"name": "detiknews", "url": "https://news.detik.com/", "parser": parse_detiknews},
+    {"name": "tempo", "url": "https://www.tempo.co/", "parser": parse_tempo},
+    # {"name": "cnnindonesia", "url": "https://www.cnnindonesia.com/", "parser": parse_cnn},
     # {"name": "liputan6", "url": "https://www.liputan6.com/", "parser": parse_liputan6},
 ]
-
-
-def fetch(url: str) -> str:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"
-    }
-    resp = requests.get(url, timeout=10, headers=headers)
-    resp.raise_for_status()
-    return resp.text
-
 
 def scrape_news_today() -> List[Dict]:
     """Scrape the configured sites and return items whose published_time is today (UTC) when available.

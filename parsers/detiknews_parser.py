@@ -10,7 +10,7 @@ locale.setlocale(locale.LC_ALL, 'id_ID')
 def get_published_date(url: str) -> str:
     html = fetch(url)
     soup = BeautifulSoup(html, "html.parser")
-    time_raw = soup.find("div", class_='text-cnn_grey text-sm mb-4').get_text(strip=True)
+    time_raw = soup.find("div", class_='detail__date').get_text(strip=True)
     if time_raw:
         remove_timezone_time = remove_time_zone(time_raw)
         split_time_raw = remove_timezone_time.split(', ')
@@ -19,21 +19,20 @@ def get_published_date(url: str) -> str:
         return formatted_date
     return ''
 
-def parse_cnn(html: str) -> List[Dict]:
+def parse_detiknews(html: str) -> List[Dict]:
     soup = BeautifulSoup(html, "html.parser")
     headlines = []
 
     # Find all article elements containing headlines
-    grid_sections = soup.find_all("div", class_="grid")
-    for section in grid_sections:
-        # Ensure it matches the main layout (6 columns with gap)
-        if "grid-cols-6" in section.get("class") and "gap-4" in section.get("class"):
-            articles = section.find_all("article", class_="flex-grow")
-            for article in articles:
-                a_tag = article.find("a", href=True)
+    grid_section = soup.select_one("body > div.container > div > div.column-12 > div > div")
+    if grid_section:
+        articles = grid_section.select("article.list-content__item")
+        for article in articles:
+            a_tags = article.find_all("a")
+            for a_tag in a_tags:
                 if a_tag and a_tag.get_text(strip=True):
                     headlines.append({
-                        "source": "cnnindonesia",
+                        "source": "detiknews",
                         "title": a_tag.get_text(strip=True),
                         "url": a_tag["href"],
                         "published_date": get_published_date(a_tag['href']),

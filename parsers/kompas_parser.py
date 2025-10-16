@@ -2,9 +2,22 @@ from bs4 import BeautifulSoup
 from typing import List, Dict
 from datetime import datetime
 
+from utils.helpers import fetch, remove_time_zone
 
-def get_published_date(html: str) -> str:
+
+def get_published_date(url: str) -> str:
+    html = fetch(url)
     soup = BeautifulSoup(html, "html.parser")
+    time_raw = soup.find("div", class_='read__time').get_text(strip=True)
+    if time_raw:
+        split_time_raw = time_raw.split('- ')
+        date_split = split_time_raw[1].split(', ')
+        remove_timezone_time = remove_time_zone(date_split[1])
+        str_date = date_split[0] + remove_timezone_time
+        obj_date = datetime.strptime(str_date, '%d/%m/%Y%H:%M')
+        formatted_date = obj_date.strftime('%Y-%m-%d %H:%M')
+        return formatted_date
+    return ''
 
 
 
@@ -27,7 +40,8 @@ def parse_kompas(html: str) -> List[Dict]:
                     "source": "kompas",
                     "title": title_tag.get_text(strip=True),
                     "url": link_tag["href"],
-                    "scraped_at": datetime.now()
+                    "published_date": get_published_date(link_tag['href']),
+                    "scraped_at": datetime.now().strftime('%Y-%m-%d %H:%M')
                 })
 
     return headlines
