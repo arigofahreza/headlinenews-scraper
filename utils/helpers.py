@@ -1,28 +1,11 @@
+import hashlib
+import sqlite3
 from datetime import datetime, timezone, date
 import json
 from pathlib import Path
 from typing import List, Dict
 
 import requests
-
-
-def today_utc_date() -> date:
-    return datetime.now(timezone.utc).date()
-
-
-def save_json(data: List[Dict], path: str):
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with p.open("w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-
-def load_json(path: str):
-    p = Path(path)
-    if not p.exists():
-        return []
-    with p.open("r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def fetch(url: str) -> str:
@@ -37,3 +20,14 @@ def remove_time_zone(input_time: str) -> str:
     if 'WIB' or 'WITA' or 'WIT' in str:
         return input_time.replace('WIB', '').replace('WITA', '').replace('WIT', '').strip()
     return input_time
+
+def insert_to_db(conn, cur, headlines):
+    cur.executemany("""
+        INSERT OR IGNORE INTO headlines (id, source, title, url, published_date, scraped_at)
+        VALUES (:id, :source, :title, :url, :published_date, :scraped_at)
+        """, headlines)
+    conn.commit()
+
+def generate_id(source, title, url, published_date):
+    raw_key = f"{source}|{title}|{url}|{published_date}"
+    return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()

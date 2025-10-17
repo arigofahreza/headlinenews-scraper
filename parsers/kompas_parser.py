@@ -1,8 +1,10 @@
+import sqlite3
+
 from bs4 import BeautifulSoup
 from typing import List, Dict
 from datetime import datetime
 
-from utils.helpers import fetch, remove_time_zone
+from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db
 
 
 def get_published_date(url: str) -> str:
@@ -15,14 +17,15 @@ def get_published_date(url: str) -> str:
         remove_timezone_time = remove_time_zone(date_split[1])
         str_date = date_split[0] + remove_timezone_time
         obj_date = datetime.strptime(str_date, '%d/%m/%Y%H:%M')
-        formatted_date = obj_date.strftime('%Y-%m-%d %H:%M')
+        formatted_date = obj_date.strftime('%Y-%m-%d %H:%M:%S')
         return formatted_date
     return ''
 
 
 
 def parse_kompas(html: str) -> List[Dict]:
-    """Parse a Kompas listing page and return list of items with title, url, published_time (ISO)"""
+    conn = sqlite3.connect('./databases/kompas.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    cur = conn.cursor()
     soup = BeautifulSoup(html, "html.parser")
     headlines = []
 
@@ -36,12 +39,20 @@ def parse_kompas(html: str) -> List[Dict]:
             title_tag = item.find("h1", class_="hlTitle")
 
             if link_tag and title_tag:
-                headlines.append({
+                headline = {
                     "source": "kompas",
                     "title": title_tag.get_text(strip=True),
                     "url": link_tag["href"],
                     "published_date": get_published_date(link_tag['href']),
-                    "scraped_at": datetime.now().strftime('%Y-%m-%d %H:%M')
-                })
-
+                    "scraped_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                headline["id"] = generate_id(
+                    headline["source"],
+                    headline["title"],
+                    headline["url"],
+                    headline["published_date"]
+                )
+                headlines.append(headline)
+    insert_to_db(conn, cur, headlines)
+    conn.close()
     return headlines
