@@ -21,6 +21,7 @@ def get_published_date(url: str) -> str:
 
 def parse_cnn() -> List[Dict]:
     db_path = get_db_path()
+    print(db_path)
     conn = sqlite3.connect(f'{db_path}/cnn.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
     url = 'https://www.cnnindonesia.com/'

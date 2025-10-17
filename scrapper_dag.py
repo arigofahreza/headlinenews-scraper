@@ -26,7 +26,7 @@ default_args = {
 with DAG(
         dag_id='news_scraper_dag',
         default_args=default_args,
-        schedule_interval='*/5 * * * *',  # run every 30 minutes
+        schedule='@daily',
         start_date=datetime(2025, 10, 1),
         catchup=False,
         tags=['news', 'scraper'],

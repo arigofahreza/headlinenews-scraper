@@ -43,5 +43,5 @@ def format_month(date_str: str):
 
 def get_db_path():
     current_directory = os.getcwd()
-    db_path = f'{current_directory}/dags/headlinenews-scrapper/databases'
+    db_path = f'{current_directory}/dags/headlinenews-scraper/databases'
     return db_path
