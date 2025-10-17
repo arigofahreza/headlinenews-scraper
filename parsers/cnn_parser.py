@@ -22,9 +22,11 @@ def get_published_date(url: str) -> str:
     return ''
 
 
-def parse_cnn(html: str) -> List[Dict]:
-    conn = sqlite3.connect('./databases/cnn.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+def parse_cnn() -> List[Dict]:
+    conn = sqlite3.connect('../databases/cnn.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
+    url = 'https://www.cnnindonesia.com/'
+    html = fetch(url)
     soup = BeautifulSoup(html, "html.parser")
     headlines = []
 
@@ -54,3 +56,6 @@ def parse_cnn(html: str) -> List[Dict]:
     insert_to_db(conn, cur, headlines)
     conn.close()
     return headlines
+
+if __name__ == '__main__':
+    parse_cnn()

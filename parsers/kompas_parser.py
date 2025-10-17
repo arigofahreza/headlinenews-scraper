@@ -23,9 +23,11 @@ def get_published_date(url: str) -> str:
 
 
 
-def parse_kompas(html: str) -> List[Dict]:
-    conn = sqlite3.connect('./databases/kompas.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+def parse_kompas() -> List[Dict]:
+    conn = sqlite3.connect('../databases/kompas.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
+    url = 'https://www.kompas.com/'
+    html = fetch(url)
     soup = BeautifulSoup(html, "html.parser")
     headlines = []
 
@@ -56,3 +58,6 @@ def parse_kompas(html: str) -> List[Dict]:
     insert_to_db(conn, cur, headlines)
     conn.close()
     return headlines
+
+if __name__ == '__main__':
+    parse_kompas()

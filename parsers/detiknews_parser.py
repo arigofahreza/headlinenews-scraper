@@ -20,9 +20,11 @@ def get_published_date(url: str) -> str:
         return formatted_date
     return ''
 
-def parse_detiknews(html: str) -> List[Dict]:
-    conn = sqlite3.connect('./databases/detiknews.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+def parse_detiknews() -> List[Dict]:
+    conn = sqlite3.connect('../databases/detiknews.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
+    url = 'https://news.detik.com/'
+    html = fetch(url)
     soup = BeautifulSoup(html, "html.parser")
     headlines = []
 
@@ -51,3 +53,6 @@ def parse_detiknews(html: str) -> List[Dict]:
     insert_to_db(conn, cur, headlines)
     conn.close()
     return headlines
+
+if __name__ == '__main__':
+    parse_detiknews()
