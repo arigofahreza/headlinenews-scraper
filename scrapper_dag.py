@@ -1,8 +1,15 @@
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
+print("Current dir:", current_dir)
+print("Python path:", sys.path)
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-
-# Import scrapers
 from parsers.cnn_parser import parse_cnn
 from parsers.detiknews_parser import parse_detiknews
 from parsers.kompas_parser import parse_kompas

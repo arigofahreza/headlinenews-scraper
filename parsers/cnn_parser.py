@@ -3,7 +3,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from typing import List, Dict
 
-from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db, format_month
+from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db, format_month, get_db_path
 
 
 def get_published_date(url: str) -> str:
@@ -20,7 +20,8 @@ def get_published_date(url: str) -> str:
 
 
 def parse_cnn() -> List[Dict]:
-    conn = sqlite3.connect('../databases/cnn.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    db_path = get_db_path()
+    conn = sqlite3.connect(f'{db_path}/cnn.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
     url = 'https://www.cnnindonesia.com/'
     html = fetch(url)

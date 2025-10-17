@@ -1,9 +1,5 @@
 import hashlib
-import sqlite3
-from datetime import datetime, timezone, date
-import json
-from pathlib import Path
-from typing import List, Dict
+import os
 
 import requests
 
@@ -44,3 +40,8 @@ def format_month(date_str: str):
             date_str = date_str.replace(indo, eng)
             break
     return date_str
+
+def get_db_path():
+    current_directory = os.getcwd()
+    db_path = f'{current_directory}/dags/headlinenews-scrapper/databases'
+    return db_path

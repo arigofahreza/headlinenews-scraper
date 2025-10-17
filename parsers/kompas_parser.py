@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from typing import List, Dict
 from datetime import datetime
 
-from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db
+from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db, get_db_path
 
 
 def get_published_date(url: str) -> str:
@@ -24,7 +24,8 @@ def get_published_date(url: str) -> str:
 
 
 def parse_kompas() -> List[Dict]:
-    conn = sqlite3.connect('../databases/kompas.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    db_path = get_db_path()
+    conn = sqlite3.connect(f'{db_path}/kompas.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
     url = 'https://www.kompas.com/'
     html = fetch(url)
