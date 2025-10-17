@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from typing import List, Dict
 
@@ -24,23 +24,32 @@ def parse_cnn() -> List[Dict]:
     print(db_path)
     conn = sqlite3.connect(f'{db_path}/cnn.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
-    url = 'https://www.cnnindonesia.com/'
-    html = fetch(url)
+    current_date = (datetime.now() - timedelta(days=1)).strftime('%Y/%m/%d')
+    url_source = f'https://www.cnnindonesia.com/indeks/?date={current_date}'
+    html = fetch(url_source)
     soup = BeautifulSoup(html, "html.parser")
+    page_links = soup.select("div.justify-center a[href*='page=']")
+    page_numbers = []
+    for a in page_links:
+        text = a.get_text(strip=True)
+        if text.isdigit():
+            page_numbers.append(int(text))
+    max_page = max(page_numbers) if page_numbers else 1
     headlines = []
-
-    # Find all article elements containing headlines
-    grid_sections = soup.find_all("div", class_="grid")
-    for section in grid_sections:
-        # Ensure it matches the main layout (6 columns with gap)
-        if "grid-cols-6" in section.get("class") and "gap-4" in section.get("class"):
+    for page in range(1, int(max_page)+1):
+        url_page = f'https://www.cnnindonesia.com/indeks/?date={current_date}&page={page}'
+        html_page = fetch(url_page)
+        soup_page = BeautifulSoup(html_page, "html.parser")
+        grid_sections = soup_page.find_all("div", class_="flex flex-col gap-5")
+        for section in grid_sections:
             articles = section.find_all("article", class_="flex-grow")
             for article in articles:
                 a_tag = article.find("a", href=True)
-                if a_tag and a_tag.get_text(strip=True):
+                h2_tag = article.find('h2')
+                if a_tag and h2_tag:
                     headline = {
                         "source": "cnnindonesia",
-                        "title": a_tag.get_text(strip=True),
+                        "title": h2_tag.get_text(),
                         "url": a_tag["href"],
                         "published_date": get_published_date(a_tag['href']),
                         "scraped_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
