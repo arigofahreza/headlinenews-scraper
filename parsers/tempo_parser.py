@@ -1,19 +1,16 @@
 import sqlite3
 from datetime import datetime
-import locale
 from bs4 import BeautifulSoup
 from typing import List, Dict
 
-from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db
-
-locale.setlocale(locale.LC_ALL, 'id_ID')
+from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db, format_month
 
 def get_published_date(url: str) -> str:
     html = fetch(url)
     soup = BeautifulSoup(html, "html.parser")
     time_raw = soup.find("p", class_='text-neutral-900 text-sm').get_text(strip=True)
     if time_raw:
-        remove_timezone_time = remove_time_zone(time_raw).replace(' |', '')
+        remove_timezone_time = remove_time_zone(format_month(time_raw)).replace(' |', '')
         obj_date = datetime.strptime(remove_timezone_time, '%d %B %Y %H.%M')
         formatted_date = obj_date.strftime('%Y-%m-%d %H:%M')
         return formatted_date

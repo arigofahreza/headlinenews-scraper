@@ -31,3 +31,16 @@ def insert_to_db(conn, cur, headlines):
 def generate_id(source, title, url, published_date):
     raw_key = f"{source}|{title}|{url}|{published_date}"
     return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
+
+def format_month(date_str: str):
+    month_map = {
+        'Jan': 'Jan', 'Feb': 'Feb', 'Mar': 'Mar', 'Apr': 'Apr',
+        'Mei': 'May', 'Jun': 'Jun', 'Jul': 'Jul', 'Agu': 'Aug',
+        'Sep': 'Sep', 'Okt': 'Oct', 'Nov': 'Nov', 'Des': 'Dec'
+    }
+
+    for indo, eng in month_map.items():
+        if indo in date_str:
+            date_str = date_str.replace(indo, eng)
+            break
+    return date_str

@@ -1,12 +1,9 @@
 import sqlite3
 from datetime import datetime
-import locale
 from bs4 import BeautifulSoup
 from typing import List, Dict
 
-from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db
-
-locale.setlocale(locale.LC_ALL, 'id_ID')
+from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db, format_month
 
 def get_published_date(url: str) -> str:
     html = fetch(url)
@@ -15,7 +12,7 @@ def get_published_date(url: str) -> str:
     if time_raw:
         remove_timezone_time = remove_time_zone(time_raw)
         split_time_raw = remove_timezone_time.split(', ')
-        obj_date = datetime.strptime(split_time_raw[1], '%d %b %Y %H:%M')
+        obj_date = datetime.strptime(format_month(split_time_raw[1]), '%d %b %Y %H:%M')
         formatted_date = obj_date.strftime('%Y-%m-%d %H:%M:%S')
         return formatted_date
     return ''
