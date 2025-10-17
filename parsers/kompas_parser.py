@@ -2,7 +2,7 @@ import sqlite3
 
 from bs4 import BeautifulSoup
 from typing import List, Dict
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from utils.helpers import fetch, remove_time_zone, generate_id, insert_to_db, get_db_path
 
@@ -16,7 +16,7 @@ def get_published_date(url: str) -> str:
         date_split = split_time_raw[1].split(', ')
         remove_timezone_time = remove_time_zone(date_split[1])
         str_date = date_split[0] + remove_timezone_time
-        obj_date = datetime.strptime(str_date, '%d/%m/%Y%H:%M')
+        obj_date = datetime.strptime(str_date.replace('Diperbarui ', ''), '%d/%m/%Y%H:%M')
         formatted_date = obj_date.strftime('%Y-%m-%d %H:%M:%S')
         return formatted_date
     return ''
@@ -27,20 +27,26 @@ def parse_kompas() -> List[Dict]:
     db_path = get_db_path()
     conn = sqlite3.connect(f'{db_path}/kompas.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
-    url = 'https://www.kompas.com/'
-    html = fetch(url)
-    soup = BeautifulSoup(html, "html.parser")
+    current_date = (datetime.now()).strftime('%Y-%m-%d')
+    url_source = f'https://indeks.kompas.com/?site=all&date={current_date}'
+    html_source = fetch(url_source)
+    soup = BeautifulSoup(html_source, "html.parser")
+    paginations = soup.find_all("div", class_='paging__item')
+    max_page = 1
+    if paginations:
+        for pagination in paginations:
+            last_link = pagination.find("a", class_="paging__link paging__link--last")
+            if last_link:
+                max_page = last_link.get("data-ci-pagination-page")
     headlines = []
-
-    # Find all sections containing headline groups (slider + grid)
-    sections = soup.find_all("div", class_="hlWrap")
-    for section in sections:
-        # Each hlItem is one news card
-        items = section.find_all("div", class_="hlItem")
-        for item in items:
-            link_tag = item.find("a", href=True)
-            title_tag = item.find("h1", class_="hlTitle")
-
+    for page in range(1, int(max_page) + 1):
+        url_page = f'https://indeks.kompas.com/?site=all&date={current_date}&page={page}'
+        html_page = fetch(url_page)
+        soup_page = BeautifulSoup(html_page, "html.parser")
+        sections = soup_page.find_all("div", class_="articleItem")
+        for section in sections:
+            link_tag = section.find("a", href=True)
+            title_tag = section.find("h2", class_="articleTitle")
             if link_tag and title_tag:
                 headline = {
                     "source": "kompas",

@@ -12,10 +12,12 @@ def fetch(url: str) -> str:
     resp.raise_for_status()
     return resp.text
 
+
 def remove_time_zone(input_time: str) -> str:
     if 'WIB' or 'WITA' or 'WIT' in str:
         return input_time.replace('WIB', '').replace('WITA', '').replace('WIT', '').strip()
     return input_time
+
 
 def insert_to_db(conn, cur, headlines):
     cur.executemany("""
@@ -24,15 +26,28 @@ def insert_to_db(conn, cur, headlines):
         """, headlines)
     conn.commit()
 
+
 def generate_id(source, title, url, published_date):
     raw_key = f"{source}|{title}|{url}|{published_date}"
     return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
+
 
 def format_month(date_str: str):
     month_map = {
         'Jan': 'Jan', 'Feb': 'Feb', 'Mar': 'Mar', 'Apr': 'Apr',
         'Mei': 'May', 'Jun': 'Jun', 'Jul': 'Jul', 'Agu': 'Aug',
-        'Sep': 'Sep', 'Okt': 'Oct', 'Nov': 'Nov', 'Des': 'Dec'
+        'Sep': 'Sep', 'Okt': 'Oct', 'Nov': 'Nov', 'Des': 'Dec',
+        "Januari": "January",
+        "Februari": "February",
+        "Maret": "March",
+        "April": "April",
+        "Juni": "June",
+        "Juli": "July",
+        "Agustus": "August",
+        "September": "September",
+        "Oktober": "October",
+        "November": "November",
+        "Desember": "December"
     }
 
     for indo, eng in month_map.items():
@@ -40,6 +55,7 @@ def format_month(date_str: str):
             date_str = date_str.replace(indo, eng)
             break
     return date_str
+
 
 def get_db_path():
     current_directory = os.getcwd()

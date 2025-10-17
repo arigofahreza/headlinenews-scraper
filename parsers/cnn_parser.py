@@ -21,10 +21,9 @@ def get_published_date(url: str) -> str:
 
 def parse_cnn() -> List[Dict]:
     db_path = get_db_path()
-    print(db_path)
     conn = sqlite3.connect(f'{db_path}/cnn.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cur = conn.cursor()
-    current_date = (datetime.now() - timedelta(days=1)).strftime('%Y/%m/%d')
+    current_date = (datetime.now()).strftime('%Y/%m/%d')
     url_source = f'https://www.cnnindonesia.com/indeks/?date={current_date}'
     html = fetch(url_source)
     soup = BeautifulSoup(html, "html.parser")

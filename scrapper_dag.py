@@ -14,7 +14,7 @@ from parsers.cnn_parser import parse_cnn
 from parsers.detiknews_parser import parse_detiknews
 from parsers.kompas_parser import parse_kompas
 from parsers.liputan6_parser import parse_liputan6
-from parsers.tempo_parser import parse_tempo
+from parsers.tribun_parser import parse_tribun
 
 default_args = {
     'owner': 'airflow',
@@ -51,9 +51,9 @@ with DAG(
         python_callable=parse_liputan6,
     )
 
-    tempo_task = PythonOperator(
-        task_id='scrap_tempo',
-        python_callable=parse_tempo,
+    tribun_task = PythonOperator(
+        task_id='scrap_tribun',
+        python_callable=parse_tribun,
     )
 
-    [cnn_task, detik_task, kompas_task, liputan6_task, tempo_task]
+    [cnn_task, detik_task, kompas_task, liputan6_task, tribun_task]
