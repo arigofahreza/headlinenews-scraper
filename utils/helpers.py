@@ -19,7 +19,7 @@ def remove_time_zone(input_time: str) -> str:
 
 def insert_to_db(conn, cur, headlines):
     cur.executemany("""
-        INSERT OR IGNORE INTO headlines (id, source, title, url, published_date, scraped_at)
+        INSERT OR IGNORE INTO news_articles (id, source, title, url, published_date, scraped_at)
         VALUES (:id, :source, :title, :url, :published_date, :scraped_at)
         """, headlines)
     conn.commit()

@@ -10,7 +10,7 @@ def table_creator(file: str):
     cur.executescript("""
     BEGIN;
 
-    CREATE TABLE IF NOT EXISTS headlines (
+    CREATE TABLE IF NOT EXISTS news_articles (
         id TEXT PRIMARY KEY,
         source TEXT NOT NULL,
         title TEXT NOT NULL,
@@ -19,17 +19,17 @@ def table_creator(file: str):
         scraped_at DATETIME NOT NULL
     );
 
-    CREATE INDEX IF NOT EXISTS idx_headlines_source
-        ON headlines (source);
+    CREATE INDEX IF NOT EXISTS idx_news_articles_source
+        ON news_articles (source);
 
-    CREATE INDEX IF NOT EXISTS idx_headlines_published_date
-        ON headlines (published_date);
+    CREATE INDEX IF NOT EXISTS idx_news_articles_published_date
+        ON news_articles (published_date);
 
-    CREATE INDEX IF NOT EXISTS idx_headlines_scraped_at
-        ON headlines (scraped_at);
+    CREATE INDEX IF NOT EXISTS idx_news_articles_scraped_at
+        ON news_articles (scraped_at);
 
-    CREATE INDEX IF NOT EXISTS idx_headlines_source_pubdate
-        ON headlines (source, published_date);
+    CREATE INDEX IF NOT EXISTS idx_news_articles_source_pubdate
+        ON news_articles (source, published_date);
 
     COMMIT;
     """)
